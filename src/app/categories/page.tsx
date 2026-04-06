@@ -127,6 +127,7 @@ export default function CategoriesPage() {
           ))}
         </div>
       </div>
+    </div>
     </AnimatedPage>
   );
 }
