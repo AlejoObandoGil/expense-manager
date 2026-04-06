@@ -2,16 +2,30 @@
 
 import { useState } from 'react';
 import { useTransactions } from '@/presentation/hooks';
-import { EmojiButton, EmptyState, AmountDisplay } from '@/presentation/components/shared';
+import { EmptyState, AmountDisplay } from '@/presentation/components/shared';
+import { TransactionForm } from '@/presentation/components/transactions/transaction-form';
 import { mockCategories } from '@/infrastructure/data';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Edit2, Trash2, Copy, Filter } from 'lucide-react';
+import { toast } from 'sonner';
+import { transactionRepository } from '@/infrastructure/repositories';
 
 export default function TransactionsPage() {
-  const { transactions, loading } = useTransactions();
+  const { transactions, loading, refresh } = useTransactions();
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [editingTransaction, setEditingTransaction] = useState<typeof transactions[0] | null>(null);
+
+  const handleDelete = async (id: string) => {
+    try {
+      await transactionRepository.delete(id);
+      toast.success('Transacción eliminada');
+      refresh();
+    } catch {
+      toast.error('Error al eliminar');
+    }
+  };
 
   const filteredTransactions = transactions.filter((t) => {
     if (filterType !== 'all' && t.type !== filterType) return false;
@@ -30,12 +44,7 @@ export default function TransactionsPage() {
           <h1 className="text-2xl font-semibold text-zinc-900">Transacciones</h1>
           <p className="text-zinc-500 mt-1">Gestiona tus ingresos y gastos</p>
         </div>
-        <EmojiButton
-          emoji="➕"
-          label="Nueva Transacción"
-          variant="primary"
-          onClick={() => console.log('Nueva transacción')}
-        />
+        <TransactionForm onSuccess={refresh} />
       </div>
 
       {/* Filters */}
@@ -145,14 +154,14 @@ export default function TransactionsPage() {
                     <button
                       className="p-2 text-zinc-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors"
                       title="Editar"
-                      onClick={() => console.log('Editar', transaction.id)}
+                      onClick={() => setEditingTransaction(transaction)}
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
                       className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       title="Eliminar"
-                      onClick={() => console.log('Eliminar', transaction.id)}
+                      onClick={() => handleDelete(transaction.id)}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -163,6 +172,18 @@ export default function TransactionsPage() {
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      {editingTransaction && (
+        <TransactionForm
+          transaction={editingTransaction}
+          onSuccess={() => {
+            setEditingTransaction(null);
+            refresh();
+          }}
+          trigger={null}
+        />
+      )}
     </div>
   );
 }

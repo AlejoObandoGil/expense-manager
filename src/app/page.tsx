@@ -1,12 +1,17 @@
+'use client';
+
 import {
   DashboardStats,
   MonthlyChart,
   CategoryChart,
   RecentTransactions,
 } from '@/presentation/components/dashboard';
-import { EmojiButton } from '@/presentation/components/shared';
+import { TransactionForm } from '@/presentation/components/transactions/transaction-form';
+import { useTransactions } from '@/presentation/hooks';
 
 export default function Home() {
+  const { refresh } = useTransactions();
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -15,15 +20,7 @@ export default function Home() {
           <h1 className="text-2xl font-semibold text-zinc-900">Dashboard</h1>
           <p className="text-zinc-500 mt-1">Resumen de tus finanzas personales</p>
         </div>
-        <EmojiButton
-          emoji="➕"
-          label="Nueva Transacción"
-          variant="primary"
-          onClick={() => {
-            // TODO: Abrir modal de nueva transacción
-            console.log('Nueva transacción');
-          }}
-        />
+        <TransactionForm onSuccess={refresh} />
       </div>
 
       {/* Stats Cards */}
