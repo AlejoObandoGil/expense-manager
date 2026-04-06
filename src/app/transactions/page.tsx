@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTransactions } from '@/presentation/hooks';
-import { EmptyState, AmountDisplay } from '@/presentation/components/shared';
+import { EmptyState, AmountDisplay, AnimatedPage } from '@/presentation/components/shared';
 import { TransactionForm } from '@/presentation/components/transactions/transaction-form';
 import { mockCategories } from '@/infrastructure/data';
 import { format } from 'date-fns';
@@ -17,7 +17,26 @@ export default function TransactionsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [editingTransaction, setEditingTransaction] = useState<typeof transactions[0] | null>(null);
 
+  const handleDuplicate = async (transaction: typeof transactions[0]) => {
+    try {
+      await transactionRepository.create({
+        amount: transaction.amount,
+        description: `${transaction.description} (copia)`,
+        categoryId: transaction.categoryId,
+        date: new Date(),
+        type: transaction.type,
+        accountId: transaction.accountId,
+      });
+      toast.success('Transacción duplicada');
+      refresh();
+    } catch {
+      toast.error('Error al duplicar');
+    }
+  };
+
   const handleDelete = async (id: string) => {
+    if (!confirm('¿Estás seguro de eliminar esta transacción?')) return;
+    
     try {
       await transactionRepository.delete(id);
       toast.success('Transacción eliminada');
@@ -37,7 +56,8 @@ export default function TransactionsPage() {
   const expenseCategories = mockCategories.filter(c => c.type === 'expense' || c.type === 'both');
 
   return (
-    <div className="space-y-6">
+    <AnimatedPage>
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -147,7 +167,7 @@ export default function TransactionsPage() {
                     <button
                       className="p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
                       title="Duplicar"
-                      onClick={() => console.log('Duplicar', transaction.id)}
+                      onClick={() => handleDuplicate(transaction)}
                     >
                       <Copy className="w-4 h-4" />
                     </button>
@@ -184,6 +204,7 @@ export default function TransactionsPage() {
           trigger={null}
         />
       )}
-    </div>
+      </div>
+    </AnimatedPage>
   );
 }
