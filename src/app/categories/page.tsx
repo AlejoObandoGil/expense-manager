@@ -2,7 +2,7 @@
 
 import { useTransactions } from '@/presentation/hooks';
 import { mockCategories } from '@/infrastructure/data';
-import { EmojiButton } from '@/presentation/components/shared';
+import { EmojiButton, AnimatedPage } from '@/presentation/components/shared';
 import { useMemo } from 'react';
 
 export default function CategoriesPage() {
@@ -29,7 +29,8 @@ export default function CategoriesPage() {
   const incomeCategories = categoriesWithSpending.filter(c => c.type === 'income' || c.type === 'both');
 
   return (
-    <div className="space-y-8">
+    <AnimatedPage>
+      <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-zinc-900">Categorías</h1>
@@ -50,16 +51,27 @@ export default function CategoriesPage() {
           {expenseCategories.map((cat) => {
             const percentage = Math.min((cat.spent / cat.budget) * 100, 100);
             const isOverBudget = cat.spent > cat.budget;
+            const isNearLimit = percentage > 80 && !isOverBudget;
             
             return (
               <div
                 key={cat.id}
-                className="bg-white rounded-xl p-4 shadow-sm border border-zinc-200 hover:shadow-md transition-shadow"
+                className={`bg-white rounded-xl p-4 shadow-sm border-2 transition-all hover:shadow-md ${
+                  isOverBudget 
+                    ? 'border-red-300 bg-red-50/30' 
+                    : isNearLimit 
+                    ? 'border-amber-300 bg-amber-50/30' 
+                    : 'border-zinc-200'
+                }`}
               >
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-3xl">{cat.emoji}</span>
-                  <div>
-                    <h3 className="font-medium text-zinc-900">{cat.name}</h3>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-zinc-900">{cat.name}</h3>
+                      {isOverBudget && <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">⚠️ Excedido</span>}
+                      {isNearLimit && <span className="text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">⚡ 80%+</span>}
+                    </div>
                     <p className="text-xs text-zinc-500">
                       Presupuesto: S/{cat.budget.toFixed(0)}
                     </p>
@@ -115,6 +127,6 @@ export default function CategoriesPage() {
           ))}
         </div>
       </div>
-    </div>
+    </AnimatedPage>
   );
 }
