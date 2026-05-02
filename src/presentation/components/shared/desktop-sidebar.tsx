@@ -29,7 +29,7 @@ export function DesktopSidebar() {
       <nav className="px-4 py-4">
         <ul className="space-y-1">
           {navItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(`${item.href}/`));
 
             return (
               <li key={item.href}>
