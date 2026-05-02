@@ -37,14 +37,14 @@ export function DashboardStats() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-zinc-200 animate-pulse">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-zinc-200 rounded-lg" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 bg-zinc-200 rounded w-20" />
-                <div className="h-8 bg-zinc-200 rounded w-24" />
+          <div key={i} className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-zinc-200 animate-pulse">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-zinc-200 rounded-lg flex-shrink-0" />
+              <div className="flex-1 space-y-2 min-w-0">
+                <div className="h-3 sm:h-4 bg-zinc-200 rounded w-16 sm:w-20" />
+                <div className="h-6 sm:h-8 bg-zinc-200 rounded w-20 sm:w-24" />
               </div>
             </div>
           </div>
@@ -54,33 +54,33 @@ export function DashboardStats() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
       <EmojiCard
         emoji="💰"
-        title="Balance Total"
+        title="Balance"
         value={formatCurrency(balance.balance)}
-        subtitle="Disponible actualmente"
+        subtitle="Disponible"
         trend={{ value: 12.5, isPositive: true }}
       />
       <EmojiCard
         emoji="💵"
-        title="Ingresos del Mes"
+        title="Ingresos"
         value={formatCurrency(balance.income)}
-        subtitle="Total recibido"
+        subtitle="Este mes"
         trend={{ value: 8.2, isPositive: true }}
       />
       <EmojiCard
         emoji="💸"
-        title="Gastos del Mes"
+        title="Gastos"
         value={formatCurrency(balance.expense)}
-        subtitle="Total gastado"
+        subtitle="Este mes"
         trend={{ value: 5.3, isPositive: false }}
       />
       <EmojiCard
         emoji="🎯"
-        title="Presupuesto Restante"
+        title="Restante"
         value={formatCurrency(balance.income - balance.expense)}
-        subtitle="80% utilizado"
+        subtitle="Presupuesto"
         trend={{ value: 15.8, isPositive: true }}
       />
     </div>
