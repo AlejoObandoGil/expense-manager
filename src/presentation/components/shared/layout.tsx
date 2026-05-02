@@ -1,15 +1,11 @@
-'use client';
-
 import { MobileNav } from './mobile-nav';
 import { DesktopSidebar } from './desktop-sidebar';
-import { useBreakpoint } from '@/presentation/hooks';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { isDesktop } = useBreakpoint();
 
   return (
     <div className="min-h-screen bg-zinc-50">
