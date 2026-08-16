@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Edit2, Trash2, Copy, Filter } from 'lucide-react';
 import { toast } from 'sonner';
-import { transactionRepository } from '@/infrastructure/repositories';
+import { deleteTransaction, createTransaction } from '@/app/transactions/actions';
 
 export default function TransactionsPage() {
   const { transactions, loading, refresh } = useTransactions();
@@ -19,7 +19,7 @@ export default function TransactionsPage() {
 
   const handleDuplicate = async (transaction: typeof transactions[0]) => {
     try {
-      await transactionRepository.create({
+      const result = await createTransaction({
         amount: transaction.amount,
         description: `${transaction.description} (copia)`,
         categoryId: transaction.categoryId,
@@ -27,22 +27,30 @@ export default function TransactionsPage() {
         type: transaction.type,
         accountId: transaction.accountId,
       });
-      toast.success('Transacción duplicada');
-      refresh();
-    } catch {
-      toast.error('Error al duplicar');
+      if (result.success) {
+        toast.success('Transacción duplicada');
+        refresh();
+      } else {
+        toast.error(result.error);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error al duplicar');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('¿Estás seguro de eliminar esta transacción?')) return;
-    
+
     try {
-      await transactionRepository.delete(id);
-      toast.success('Transacción eliminada');
-      refresh();
-    } catch {
-      toast.error('Error al eliminar');
+      const result = await deleteTransaction(id);
+      if (result.success) {
+        toast.success('Transacción eliminada');
+        refresh();
+      } else {
+        toast.error(result.error);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error al eliminar');
     }
   };
 

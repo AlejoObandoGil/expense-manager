@@ -1,50 +1,63 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Transaction } from '@/domain/entities/transaction';
-import { transactionRepository } from '@/infrastructure/repositories';
-import { GetTransactionsUseCase, GetBalanceUseCase, GetMonthlyStatsUseCase } from '@/domain/usecases/transactions';
+import {
+  getTransactions,
+  getBalance,
+  getMonthlyStats,
+} from '@/app/transactions/actions';
 
 export function useTransactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const getTransactionsUseCase = useMemo(() => new GetTransactionsUseCase(transactionRepository), []);
-  const getBalanceUseCase = useMemo(() => new GetBalanceUseCase(transactionRepository), []);
-  const getMonthlyStatsUseCase = useMemo(() => new GetMonthlyStatsUseCase(transactionRepository), []);
-
   const loadTransactions = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getTransactionsUseCase.execute();
-      setTransactions(data);
-      setError(null);
+      const result = await getTransactions();
+      if (result.success) {
+        setTransactions(result.data);
+        setError(null);
+      } else {
+        setError(result.error);
+        setTransactions([]);
+      }
     } catch {
       setError('Error al cargar las transacciones');
+      setTransactions([]);
     } finally {
       setLoading(false);
     }
-  }, [getTransactionsUseCase]);
+  }, []);
 
   useEffect(() => {
     loadTransactions();
   }, [loadTransactions]);
 
-  const getBalance = useCallback(async () => {
-    return getBalanceUseCase.execute();
-  }, [getBalanceUseCase]);
+  const getBalanceData = useCallback(async () => {
+    const result = await getBalance();
+    if (result.success) {
+      return result.data;
+    }
+    throw new Error(result.error);
+  }, []);
 
-  const getMonthlyStats = useCallback(async (months?: number) => {
-    return getMonthlyStatsUseCase.execute(months);
-  }, [getMonthlyStatsUseCase]);
+  const getMonthlyStatsData = useCallback(async (months?: number) => {
+    const result = await getMonthlyStats(months);
+    if (result.success) {
+      return result.data;
+    }
+    throw new Error(result.error);
+  }, []);
 
   return {
     transactions,
     loading,
     error,
     refresh: loadTransactions,
-    getBalance,
-    getMonthlyStats,
+    getBalance: getBalanceData,
+    getMonthlyStats: getMonthlyStatsData,
   };
 }
