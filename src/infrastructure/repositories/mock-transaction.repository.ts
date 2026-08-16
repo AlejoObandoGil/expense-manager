@@ -1,3 +1,4 @@
+import 'server-only';
 import { ITransactionRepository } from '@/domain/repositories/transaction.repository';
 import { Transaction } from '@/domain/entities/transaction';
 import { mockTransactions } from '@/infrastructure/data/transactions';
@@ -30,7 +31,7 @@ export class MockTransactionRepository implements ITransactionRepository {
   async create(data: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>): Promise<Transaction> {
     const transaction: Transaction = {
       ...data,
-      id: `tx-${Date.now()}`,
+      id: crypto.randomUUID(),
       createdAt: new Date(),
       updatedAt: new Date(),
     };

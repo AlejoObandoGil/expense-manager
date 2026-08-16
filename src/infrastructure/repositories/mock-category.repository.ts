@@ -1,3 +1,4 @@
+import 'server-only';
 import { ICategoryRepository } from '@/domain/repositories/category.repository';
 import { Category } from '@/domain/entities/category';
 import { mockCategories } from '@/infrastructure/data/categories';
@@ -20,7 +21,7 @@ export class MockCategoryRepository implements ICategoryRepository {
   async create(data: Omit<Category, 'id'>): Promise<Category> {
     const category: Category = {
       ...data,
-      id: `cat-${Date.now()}`,
+      id: crypto.randomUUID(),
     };
     this.categories.push(category);
     return category;
