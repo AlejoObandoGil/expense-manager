@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# bmad (AI-assisted development)
+_bmad/
+_bmad-output/
+.agents/
+.claude/
+.opencode/
+.github/
