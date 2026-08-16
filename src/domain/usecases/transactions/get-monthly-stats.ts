@@ -1,4 +1,4 @@
-import { TransactionRepository } from '@/domain/repositories';
+import { ITransactionRepository } from '@/domain/repositories';
 
 export interface MonthlyStat {
   month: string;
@@ -8,7 +8,7 @@ export interface MonthlyStat {
 }
 
 export class GetMonthlyStatsUseCase {
-  constructor(private repository: TransactionRepository) {}
+  constructor(private repository: ITransactionRepository) {}
 
   async execute(months: number = 6): Promise<MonthlyStat[]> {
     const endDate = new Date();

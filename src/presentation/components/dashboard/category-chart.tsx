@@ -84,7 +84,7 @@ export function CategoryChart() {
                 borderRadius: '8px',
                 boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
               }}
-              formatter={(value: number) => formatCurrency(value)}
+              formatter={(value) => typeof value === 'number' ? formatCurrency(value) : ''}
             />
           </PieChart>
         </ResponsiveContainer>
