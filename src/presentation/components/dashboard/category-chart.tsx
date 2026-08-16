@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts';
+import { formatCurrency } from '@/lib/format';
 import { useTransactions } from '@/presentation/hooks';
 import { mockCategories } from '@/infrastructure/data';
 
@@ -44,15 +45,6 @@ export function CategoryChart() {
       .sort((a, b) => b.value - a.value)
       .slice(0, 6);
   }, [transactions]);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-zinc-200">

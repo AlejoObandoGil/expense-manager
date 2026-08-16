@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { formatCurrency } from '@/lib/format';
 import { EmojiCard } from '@/presentation/components/shared';
 import { useTransactions } from '@/presentation/hooks';
 
@@ -25,15 +26,6 @@ export function DashboardStats() {
     };
     loadBalance();
   }, [getBalance]);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   if (loading) {
     return (
