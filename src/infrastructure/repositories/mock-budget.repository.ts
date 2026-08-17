@@ -5,7 +5,7 @@ import { Budget } from '@/domain/entities/budget';
 const mockBudgets: Budget[] = [
   {
     id: crypto.randomUUID(),
-    categoryId: 'food-1',
+    categoryId: 'cat-2',
     amount: 500,
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
@@ -15,7 +15,7 @@ const mockBudgets: Budget[] = [
   },
   {
     id: crypto.randomUUID(),
-    categoryId: 'transport-2',
+    categoryId: 'cat-3',
     amount: 200,
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
@@ -25,7 +25,7 @@ const mockBudgets: Budget[] = [
   },
   {
     id: crypto.randomUUID(),
-    categoryId: 'entertainment-3',
+    categoryId: 'cat-5',
     amount: 150,
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),

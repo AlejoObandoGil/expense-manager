@@ -71,8 +71,8 @@ export function DashboardStats() {
       <EmojiCard
         emoji="🎯"
         title="Restante"
-        value={formatCurrency(balance.balance)}
-        subtitle="Presupuesto"
+        value={formatCurrency(balance.income - balance.expense)}
+        subtitle="Diferencia mensual"
         trend={{ value: 15.8, isPositive: true }}
       />
     </div>
