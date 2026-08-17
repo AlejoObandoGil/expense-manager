@@ -1,16 +1,36 @@
 'use client';
 
 import { useTransactions } from '@/presentation/hooks';
-import { mockCategories } from '@/infrastructure/data';
+import { getCategories } from '@/app/actions/categories';
 import { EmojiButton, AnimatedPage } from '@/presentation/components/shared';
-import { useMemo } from 'react';
+import { Category } from '@/domain/entities/category';
+import { useMemo, useState, useEffect } from 'react';
 
 export default function CategoriesPage() {
   const { transactions } = useTransactions();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const result = await getCategories();
+        if (result.success) {
+          setCategories(result.data);
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   const categoriesWithSpending = useMemo(() => {
     const expensesByCategory = new Map<string, number>();
-    
+
     transactions
       .filter(t => t.type === 'expense')
       .forEach(t => {
@@ -18,12 +38,12 @@ export default function CategoriesPage() {
         expensesByCategory.set(t.categoryId, current + t.amount);
       });
 
-    return mockCategories.map(cat => ({
+    return categories.map(cat => ({
       ...cat,
       spent: expensesByCategory.get(cat.id) || 0,
       budget: cat.budget || 1000,
     }));
-  }, [transactions]);
+  }, [transactions, categories]);
 
   const expenseCategories = categoriesWithSpending.filter(c => c.type === 'expense' || c.type === 'both');
   const incomeCategories = categoriesWithSpending.filter(c => c.type === 'income' || c.type === 'both');
