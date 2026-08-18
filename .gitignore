@@ -46,4 +46,7 @@ _bmad-output/
 .agents/
 .claude/
 .opencode/
+
+# secrets
 .mcp.json
+.mcp.json.local
