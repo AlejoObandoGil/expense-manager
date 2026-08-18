@@ -40,6 +40,13 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# bmad (AI-assisted development)
+_bmad/
+_bmad-output/
+.agents/
+.claude/
+.opencode/
+
 # secrets
 .mcp.json
 .mcp.json.local
