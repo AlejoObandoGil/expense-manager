@@ -1,0 +1,10 @@
+{
+  "enabledMcpjsonServers": [
+    "github"
+  ],
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)"
+    ]
+  }
+}
