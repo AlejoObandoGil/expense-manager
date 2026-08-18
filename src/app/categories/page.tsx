@@ -1,16 +1,53 @@
 'use client';
 
 import { useTransactions } from '@/presentation/hooks';
-import { mockCategories } from '@/infrastructure/data';
+import { getCategories } from '@/app/actions/categories';
+import { getBudgetStatus } from '@/app/budgets/actions';
 import { EmojiButton, AnimatedPage } from '@/presentation/components/shared';
-import { useMemo } from 'react';
+import { Category } from '@/domain/entities/category';
+import { BudgetStatus } from '@/domain/usecases/budgets';
+import { useMemo, useState, useEffect } from 'react';
 
 export default function CategoriesPage() {
   const { transactions } = useTransactions();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [budgetStatusMap, setBudgetStatusMap] = useState<Record<string, BudgetStatus>>({});
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const result = await getCategories();
+        if (result.success) {
+          setCategories(result.data);
+
+          // Load budget status for each category (current month/year)
+          const now = new Date();
+          const month = now.getMonth() + 1; // getMonth returns 0-11
+          const year = now.getFullYear();
+
+          const statusMap: Record<string, BudgetStatus> = {};
+          for (const category of result.data) {
+            const budgetResult = await getBudgetStatus(category.id, month, year);
+            if (budgetResult.success) {
+              statusMap[category.id] = budgetResult.data;
+            }
+          }
+          setBudgetStatusMap(statusMap);
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   const categoriesWithSpending = useMemo(() => {
     const expensesByCategory = new Map<string, number>();
-    
+
     transactions
       .filter(t => t.type === 'expense')
       .forEach(t => {
@@ -18,12 +55,12 @@ export default function CategoriesPage() {
         expensesByCategory.set(t.categoryId, current + t.amount);
       });
 
-    return mockCategories.map(cat => ({
+    return categories.map(cat => ({
       ...cat,
       spent: expensesByCategory.get(cat.id) || 0,
       budget: cat.budget || 1000,
     }));
-  }, [transactions]);
+  }, [transactions, categories]);
 
   const expenseCategories = categoriesWithSpending.filter(c => c.type === 'expense' || c.type === 'both');
   const incomeCategories = categoriesWithSpending.filter(c => c.type === 'income' || c.type === 'both');
@@ -49,10 +86,13 @@ export default function CategoriesPage() {
         <h2 className="text-lg font-semibold text-zinc-900 mb-4">Gastos</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {expenseCategories.map((cat) => {
-            const percentage = Math.min((cat.spent / cat.budget) * 100, 100);
-            const isOverBudget = cat.spent > cat.budget;
-            const isNearLimit = percentage > 80 && !isOverBudget;
-            
+            // Use pre-calculated budget status from server (respects AD-5)
+            const budgetStatus = budgetStatusMap[cat.id];
+            const percentageUsed = budgetStatus?.percentageUsed ?? 0;
+            const isOverBudget = budgetStatus?.isOverBudget ?? false;
+            const isNearLimit = budgetStatus?.isNearLimit ?? false;
+            const percentage = Math.min(percentageUsed, 100);
+
             return (
               <div
                 key={cat.id}

@@ -117,6 +117,87 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Responsive Typography Scale with Plus Jakarta Sans */
+:root {
+  /* Fluid typography using clamp() - Mobile → Desktop */
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);    /* 12px → 14px */
+  --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);      /* 14px → 16px */
+  --text-base: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);    /* 14px → 16px */
+  --text-lg: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);       /* 16px → 18px */
+  --text-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);     /* 20px → 24px */
+  --text-2xl: clamp(1.5rem, 1.3rem + 1vw, 2rem);          /* 24px → 32px */
+  --text-3xl: clamp(1.75rem, 1.5rem + 1.25vw, 2.5rem);    /* 28px → 40px */
+  
+  /* Emoji sizes */
+  --emoji-sm: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);    /* 20px → 24px */
+  --emoji-md: clamp(1.5rem, 1.3rem + 1vw, 2rem);          /* 24px → 32px */
+  --emoji-lg: clamp(2rem, 1.75rem + 1.25vw, 3rem);       /* 32px → 48px */
+}
+
+/* Typography utility classes */
+.text-responsive-xs {
+  font-size: var(--text-xs);
+}
+
+.text-responsive-sm {
+  font-size: var(--text-sm);
+}
+
+.text-responsive-base {
+  font-size: var(--text-base);
+}
+
+.text-responsive-lg {
+  font-size: var(--text-lg);
+}
+
+.text-responsive-xl {
+  font-size: var(--text-xl);
+}
+
+.text-responsive-2xl {
+  font-size: var(--text-2xl);
+}
+
+.text-responsive-3xl {
+  font-size: var(--text-3xl);
+}
+
+/* Emoji sizes */
+.emoji-sm {
+  font-size: var(--emoji-sm);
+}
+
+.emoji-md {
+  font-size: var(--emoji-md);
+}
+
+.emoji-lg {
+  font-size: var(--emoji-lg);
+}
+
+/* Touch target utilities (min 44px for accessibility) */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.touch-target-sm {
+  min-height: 36px;
+  min-width: 36px;
+}
+
+/* Safe area for mobile devices with notches/home indicators */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Prevent horizontal overflow on mobile */
+.no-horizontal-scroll {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

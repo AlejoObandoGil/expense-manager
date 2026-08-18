@@ -1,25 +1,45 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTransactions } from '@/presentation/hooks';
 import { EmptyState, AmountDisplay, AnimatedPage } from '@/presentation/components/shared';
 import { TransactionForm } from '@/presentation/components/transactions/transaction-form';
-import { mockCategories } from '@/infrastructure/data';
+import { getCategories } from '@/app/actions/categories';
+import { Category } from '@/domain/entities/category';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Edit2, Trash2, Copy, Filter } from 'lucide-react';
 import { toast } from 'sonner';
-import { transactionRepository } from '@/infrastructure/repositories';
+import { deleteTransaction, createTransaction } from '@/app/transactions/actions';
 
 export default function TransactionsPage() {
   const { transactions, loading, refresh } = useTransactions();
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [editingTransaction, setEditingTransaction] = useState<typeof transactions[0] | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const result = await getCategories();
+        if (result.success) {
+          setCategories(result.data);
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   const handleDuplicate = async (transaction: typeof transactions[0]) => {
     try {
-      await transactionRepository.create({
+      const result = await createTransaction({
         amount: transaction.amount,
         description: `${transaction.description} (copia)`,
         categoryId: transaction.categoryId,
@@ -27,22 +47,30 @@ export default function TransactionsPage() {
         type: transaction.type,
         accountId: transaction.accountId,
       });
-      toast.success('Transacción duplicada');
-      refresh();
-    } catch {
-      toast.error('Error al duplicar');
+      if (result.success) {
+        toast.success('Transacción duplicada');
+        refresh();
+      } else {
+        toast.error(result.error);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error al duplicar');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('¿Estás seguro de eliminar esta transacción?')) return;
-    
+
     try {
-      await transactionRepository.delete(id);
-      toast.success('Transacción eliminada');
-      refresh();
-    } catch {
-      toast.error('Error al eliminar');
+      const result = await deleteTransaction(id);
+      if (result.success) {
+        toast.success('Transacción eliminada');
+        refresh();
+      } else {
+        toast.error(result.error);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error al eliminar');
     }
   };
 
@@ -52,8 +80,8 @@ export default function TransactionsPage() {
     return true;
   });
 
-  const incomeCategories = mockCategories.filter(c => c.type === 'income' || c.type === 'both');
-  const expenseCategories = mockCategories.filter(c => c.type === 'expense' || c.type === 'both');
+  const incomeCategories = categories.filter(c => c.type === 'income' || c.type === 'both');
+  const expenseCategories = categories.filter(c => c.type === 'expense' || c.type === 'both');
 
   return (
     <AnimatedPage>
@@ -134,7 +162,7 @@ export default function TransactionsPage() {
         ) : (
           <div className="divide-y divide-zinc-100">
             {filteredTransactions.map((transaction) => {
-              const category = mockCategories.find(c => c.id === transaction.categoryId);
+              const category = categories.find(c => c.id === transaction.categoryId);
               
               return (
                 <div

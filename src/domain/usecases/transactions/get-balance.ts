@@ -1,4 +1,4 @@
-import { TransactionRepository } from '@/domain/repositories';
+import { ITransactionRepository } from '@/domain/repositories';
 
 export interface BalanceResult {
   income: number;
@@ -7,7 +7,7 @@ export interface BalanceResult {
 }
 
 export class GetBalanceUseCase {
-  constructor(private repository: TransactionRepository) {}
+  constructor(private repository: ITransactionRepository) {}
 
   async execute(): Promise<BalanceResult> {
     const transactions = await this.repository.findAll();

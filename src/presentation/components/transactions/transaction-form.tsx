@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Transaction } from '@/domain/entities/transaction';
 import { mockCategories } from '@/infrastructure/data';
-import { transactionRepository } from '@/infrastructure/repositories';
+import { createTransaction, updateTransaction } from '@/app/transactions/actions';
 import {
   Dialog,
   DialogContent,
@@ -48,18 +48,27 @@ export function TransactionForm({ transaction, onSuccess, trigger }: Transaction
 
     try {
       if (isEditing) {
-        await transactionRepository.update(transaction.id, {
+        const result = await updateTransaction({
+          id: transaction.id,
           amount,
           description,
           categoryId,
           date: new Date(date),
           type,
         });
-        toast.success('Transacción actualizada', {
-          description: `${description} - S/${amount.toFixed(2)}`,
-        });
+        if (result.success) {
+          toast.success('Transacción actualizada', {
+            description: `${description} - S/${amount.toFixed(2)}`,
+          });
+        } else {
+          toast.error('Error', {
+            description: result.error,
+          });
+          setLoading(false);
+          return;
+        }
       } else {
-        await transactionRepository.create({
+        const result = await createTransaction({
           amount,
           description,
           categoryId,
@@ -67,16 +76,24 @@ export function TransactionForm({ transaction, onSuccess, trigger }: Transaction
           type,
           accountId: 'acc-1',
         });
-        toast.success('Transacción creada', {
-          description: `${description} - S/${amount.toFixed(2)}`,
-        });
+        if (result.success) {
+          toast.success('Transacción creada', {
+            description: `${description} - S/${amount.toFixed(2)}`,
+          });
+        } else {
+          toast.error('Error', {
+            description: result.error,
+          });
+          setLoading(false);
+          return;
+        }
       }
 
       setOpen(false);
       onSuccess?.();
-    } catch {
+    } catch (error) {
       toast.error('Error', {
-        description: 'No se pudo guardar la transacción',
+        description: error instanceof Error ? error.message : 'No se pudo guardar la transacción',
       });
     } finally {
       setLoading(false);

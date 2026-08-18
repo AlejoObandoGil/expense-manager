@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts';
+import { formatCurrency } from '@/lib/format';
 import { useTransactions } from '@/presentation/hooks';
 import { mockCategories } from '@/infrastructure/data';
 
@@ -45,15 +46,6 @@ export function CategoryChart() {
       .slice(0, 6);
   }, [transactions]);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
-
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-zinc-200">
       <div className="flex items-center gap-3 mb-6">
@@ -84,7 +76,7 @@ export function CategoryChart() {
                 borderRadius: '8px',
                 boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
               }}
-              formatter={(value: number) => formatCurrency(value)}
+              formatter={(value) => typeof value === 'number' ? formatCurrency(value) : ''}
             />
           </PieChart>
         </ResponsiveContainer>

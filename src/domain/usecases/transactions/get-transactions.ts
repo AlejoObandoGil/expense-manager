@@ -1,8 +1,8 @@
-import { TransactionRepository } from '@/domain/repositories';
+import { ITransactionRepository } from '@/domain/repositories';
 import { Transaction } from '@/domain/entities/transaction';
 
 export class GetTransactionsUseCase {
-  constructor(private repository: TransactionRepository) {}
+  constructor(private repository: ITransactionRepository) {}
 
   async execute(): Promise<Transaction[]> {
     return this.repository.findAll();
