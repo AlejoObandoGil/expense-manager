@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      budgets: {
+        Row: {
+          amount: number
+          category_id: string
+          id: string
+          month: number
+          spent: number
+          user_id: string
+          year: number
+        }
+        Insert: {
+          amount: number
+          category_id: string
+          id?: string
+          month: number
+          spent?: number
+          user_id?: string
+          year: number
+        }
+        Update: {
+          amount?: number
+          category_id?: string
+          id?: string
+          month?: number
+          spent?: number
+          user_id?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budgets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           color: string
