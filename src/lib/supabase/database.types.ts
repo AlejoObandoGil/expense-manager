@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          color: string
+          emoji: string
+          id: string
+          name: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          color: string
+          emoji: string
+          id?: string
+          name: string
+          type: string
+          user_id?: string
+        }
+        Update: {
+          color?: string
+          emoji?: string
+          id?: string
+          name?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           account_id: string | null
