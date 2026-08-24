@@ -5,6 +5,10 @@ import { IBudgetRepository } from '@/domain/repositories/budget.repository';
 import { MockTransactionRepository } from './mock-transaction.repository';
 import { MockCategoryRepository } from './mock-category.repository';
 import { MockBudgetRepository } from './mock-budget.repository';
+import { ApiTransactionRepository } from './api-transaction.repository';
+import { ApiCategoryRepository } from './api-category.repository';
+import { ApiBudgetRepository } from './api-budget.repository';
+import { createServerClient } from '@/lib/supabase/server';
 
 type DataSource = 'mock' | 'api';
 
@@ -33,9 +37,17 @@ function getDataSource(): DataSource {
 /**
  * Retrieves or creates the TransactionRepository singleton.
  * For mock: returns cached singleton (state preserved across calls)
- * For api: would return new instance (stateless, for real backend)
+ * For api: returns a new instance per call (stateless), built with a
+ * Supabase client authenticated for the current request. RLS on the
+ * `transactions` table scopes every query to the caller — this repository
+ * never receives or filters by `userId`.
  *
- * Signature is async to support future auth/session resolution without breaking callers.
+ * Signature is async to support auth/session resolution without breaking callers.
+ *
+ * For `api`, this relies on `createServerClient()` reading cookies via
+ * `next/headers`, which requires request context (Server Action, Route
+ * Handler, or Server Component render) — calling this from a cron job or
+ * other background/out-of-request context will fail.
  */
 export async function getTransactionRepository(): Promise<ITransactionRepository> {
   const dataSource = getDataSource();
@@ -47,16 +59,24 @@ export async function getTransactionRepository(): Promise<ITransactionRepository
     return mockTransactionRepo;
   }
 
-  // Future: return new ApiTransactionRepository()
-  throw new Error('API data source not yet implemented');
+  const supabase = await createServerClient();
+  return new ApiTransactionRepository(supabase);
 }
 
 /**
  * Retrieves or creates the CategoryRepository singleton.
  * For mock: returns cached singleton (state preserved across calls)
- * For api: would return new instance (stateless, for real backend)
+ * For api: returns a new instance per call (stateless), built with a
+ * Supabase client authenticated for the current request. RLS on the
+ * `categories` table scopes every query to the caller — this repository
+ * never receives or filters by `userId`.
  *
- * Signature is async to support future auth/session resolution without breaking callers.
+ * Signature is async to support auth/session resolution without breaking callers.
+ *
+ * For `api`, this relies on `createServerClient()` reading cookies via
+ * `next/headers`, which requires request context (Server Action, Route
+ * Handler, or Server Component render) — calling this from a cron job or
+ * other background/out-of-request context will fail.
  */
 export async function getCategoryRepository(): Promise<ICategoryRepository> {
   const dataSource = getDataSource();
@@ -68,16 +88,24 @@ export async function getCategoryRepository(): Promise<ICategoryRepository> {
     return mockCategoryRepo;
   }
 
-  // Future: return new ApiCategoryRepository()
-  throw new Error('API data source not yet implemented');
+  const supabase = await createServerClient();
+  return new ApiCategoryRepository(supabase);
 }
 
 /**
  * Retrieves or creates the BudgetRepository singleton.
  * For mock: returns cached singleton (state preserved across calls)
- * For api: would return new instance (stateless, for real backend)
+ * For api: returns a new instance per call (stateless), built with a
+ * Supabase client authenticated for the current request. RLS on the
+ * `budgets` table scopes every query to the caller — this repository
+ * never receives or filters by `userId`.
  *
- * Signature is async to support future auth/session resolution without breaking callers.
+ * Signature is async to support auth/session resolution without breaking callers.
+ *
+ * For `api`, this relies on `createServerClient()` reading cookies via
+ * `next/headers`, which requires request context (Server Action, Route
+ * Handler, or Server Component render) — calling this from a cron job or
+ * other background/out-of-request context will fail.
  */
 export async function getBudgetRepository(): Promise<IBudgetRepository> {
   const dataSource = getDataSource();
@@ -89,6 +117,6 @@ export async function getBudgetRepository(): Promise<IBudgetRepository> {
     return mockBudgetRepo;
   }
 
-  // Future: return new ApiBudgetRepository()
-  throw new Error('API data source not yet implemented');
+  const supabase = await createServerClient();
+  return new ApiBudgetRepository(supabase);
 }

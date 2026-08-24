@@ -1,3 +1,6 @@
+'use client';
+
+import { usePathname } from 'next/navigation';
 import { MobileNav } from './mobile-nav';
 import { DesktopSidebar } from './desktop-sidebar';
 
@@ -6,6 +9,11 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
+  const pathname = usePathname();
+
+  if (pathname === '/login') {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50">

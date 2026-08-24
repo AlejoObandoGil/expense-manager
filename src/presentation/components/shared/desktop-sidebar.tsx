@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Home, List, Tags, PieChart } from 'lucide-react';
+import { Home, List, Tags, PieChart, LogOut } from 'lucide-react';
+import { createBrowserClient } from '@/lib/supabase/client';
+import { Button } from '@/components/ui/button';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home, emoji: '💰' },
@@ -14,6 +16,14 @@ const navItems = [
 
 export function DesktopSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    const supabase = createBrowserClient();
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  };
 
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-zinc-200 hidden lg:block">
@@ -50,6 +60,17 @@ export function DesktopSidebar() {
           })}
         </ul>
       </nav>
+
+      <div className="absolute bottom-0 w-64 border-t border-border p-4">
+        <Button
+          variant="ghost"
+          onClick={handleLogout}
+          className="w-full justify-start gap-3 px-4 py-3 text-zinc-600 hover:text-zinc-900"
+        >
+          <LogOut className="size-4" />
+          <span className="font-medium">Salir</span>
+        </Button>
+      </div>
     </aside>
   );
 }
