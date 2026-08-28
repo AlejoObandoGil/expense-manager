@@ -3,7 +3,7 @@
 import { useTransactions } from '@/presentation/hooks';
 import { getCategories } from '@/app/actions/categories';
 import { getBudgetStatus } from '@/app/budgets/actions';
-import { EmojiButton, AnimatedPage } from '@/presentation/components/shared';
+import { EmojiButton, AnimatedPage, CreateCategoryModal } from '@/presentation/components/shared';
 import { Category } from '@/domain/entities/category';
 import { BudgetStatus } from '@/domain/usecases/budgets';
 import { useMemo, useState, useEffect } from 'react';
@@ -13,35 +13,36 @@ export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [budgetStatusMap, setBudgetStatusMap] = useState<Record<string, BudgetStatus>>({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const loadCategories = async () => {
+    try {
+      const result = await getCategories();
+      if (result.success) {
+        setCategories(result.data);
+
+        // Load budget status for each category (current month/year)
+        const now = new Date();
+        const month = now.getMonth() + 1; // getMonth returns 0-11
+        const year = now.getFullYear();
+
+        const statusMap: Record<string, BudgetStatus> = {};
+        for (const category of result.data) {
+          const budgetResult = await getBudgetStatus(category.id, month, year);
+          if (budgetResult.success) {
+            statusMap[category.id] = budgetResult.data;
+          }
+        }
+        setBudgetStatusMap(statusMap);
+      }
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const result = await getCategories();
-        if (result.success) {
-          setCategories(result.data);
-
-          // Load budget status for each category (current month/year)
-          const now = new Date();
-          const month = now.getMonth() + 1; // getMonth returns 0-11
-          const year = now.getFullYear();
-
-          const statusMap: Record<string, BudgetStatus> = {};
-          for (const category of result.data) {
-            const budgetResult = await getBudgetStatus(category.id, month, year);
-            if (budgetResult.success) {
-              statusMap[category.id] = budgetResult.data;
-            }
-          }
-          setBudgetStatusMap(statusMap);
-        }
-      } catch (error) {
-        console.error('Error loading categories:', error);
-      } finally {
-        setCategoriesLoading(false);
-      }
-    };
-
     loadCategories();
   }, []);
 
@@ -77,7 +78,7 @@ export default function CategoriesPage() {
           emoji="➕"
           label="Nueva Categoría"
           variant="primary"
-          onClick={() => console.log('Nueva categoría')}
+          onClick={() => setIsModalOpen(true)}
         />
       </div>
 
@@ -167,6 +168,12 @@ export default function CategoriesPage() {
           ))}
         </div>
       </div>
+
+      <CreateCategoryModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onSuccess={loadCategories}
+      />
     </div>
     </AnimatedPage>
   );
