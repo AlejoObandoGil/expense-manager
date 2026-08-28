@@ -6,3 +6,4 @@ export { Layout } from './layout';
 export { AnimatedPage } from './animated-page';
 export { MobileNav } from './mobile-nav';
 export { DesktopSidebar } from './desktop-sidebar';
+export { CreateCategoryModal } from './create-category-modal';

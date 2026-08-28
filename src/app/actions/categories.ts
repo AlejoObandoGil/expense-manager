@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { getCategoryRepository } from '@/infrastructure/repositories';
+import { getCategoryRepository, getTransactionRepository } from '@/infrastructure/repositories';
 import { Category } from '@/domain/entities/category';
 import { ActionResult } from '@/lib/types';
 
@@ -89,6 +89,11 @@ export async function updateCategory(
 
 /**
  * Deletes a category by ID.
+ *
+ * Pre-deletion validation: checks that the category has no associated
+ * transactions. If transactions exist, returns a specific error message
+ * instead of allowing the database FK constraint to reject the delete.
+ * This provides a better user experience and clearer error messaging.
  */
 export async function deleteCategory(
   id: string
@@ -97,8 +102,21 @@ export async function deleteCategory(
     if (!id || typeof id !== 'string') {
       return { success: false, error: 'ID de categoría inválido' };
     }
-    const repository = await getCategoryRepository();
-    await repository.delete(id);
+
+    // Check if category has associated transactions before attempting delete
+    const transactionRepository = await getTransactionRepository();
+    const associatedTransactions = await transactionRepository.findByCategory(id);
+
+    if (associatedTransactions.length > 0) {
+      return {
+        success: false,
+        error: 'Esta categoría tiene transacciones asociadas y no puede ser eliminada',
+      };
+    }
+
+    // No transactions found; proceed with deletion
+    const categoryRepository = await getCategoryRepository();
+    await categoryRepository.delete(id);
     return { success: true, data: undefined };
   } catch (error) {
     if (error instanceof Error) {
