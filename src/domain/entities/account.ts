@@ -1,8 +1,8 @@
 export interface Account {
   id: string;
   name: string;
-  type: 'cash' | 'bank' | 'credit' | 'savings';
-  balance: number;
+  type: 'credit_card' | 'checking' | 'savings' | 'cash' | 'investment';
+  initialBalance: number;
   currency: string;
-  emoji: string;
+  isActive: boolean;
 }

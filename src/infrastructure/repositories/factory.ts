@@ -2,12 +2,15 @@ import 'server-only';
 import { ITransactionRepository } from '@/domain/repositories/transaction.repository';
 import { ICategoryRepository } from '@/domain/repositories/category.repository';
 import { IBudgetRepository } from '@/domain/repositories/budget.repository';
+import { IAccountRepository } from '@/domain/repositories/account.repository';
 import { MockTransactionRepository } from './mock-transaction.repository';
 import { MockCategoryRepository } from './mock-category.repository';
 import { MockBudgetRepository } from './mock-budget.repository';
+import { MockAccountRepository } from './mock-account.repository';
 import { ApiTransactionRepository } from './api-transaction.repository';
 import { ApiCategoryRepository } from './api-category.repository';
 import { ApiBudgetRepository } from './api-budget.repository';
+import { ApiAccountRepository } from './api-account.repository';
 import { createServerClient } from '@/lib/supabase/server';
 
 type DataSource = 'mock' | 'api';
@@ -16,6 +19,7 @@ type DataSource = 'mock' | 'api';
 let mockTransactionRepo: MockTransactionRepository | null = null;
 let mockCategoryRepo: MockCategoryRepository | null = null;
 let mockBudgetRepo: MockBudgetRepository | null = null;
+let mockAccountRepo: MockAccountRepository | null = null;
 
 /**
  * Gets the data source configuration from environment.
@@ -119,4 +123,33 @@ export async function getBudgetRepository(): Promise<IBudgetRepository> {
 
   const supabase = await createServerClient();
   return new ApiBudgetRepository(supabase);
+}
+
+/**
+ * Retrieves or creates the AccountRepository singleton.
+ * For mock: returns cached singleton (state preserved across calls)
+ * For api: returns a new instance per call (stateless), built with a
+ * Supabase client authenticated for the current request. RLS on the
+ * `accounts` table scopes every query to the caller — this repository
+ * never receives or filters by `userId`.
+ *
+ * Signature is async to support auth/session resolution without breaking callers.
+ *
+ * For `api`, this relies on `createServerClient()` reading cookies via
+ * `next/headers`, which requires request context (Server Action, Route
+ * Handler, or Server Component render) — calling this from a cron job or
+ * other background/out-of-request context will fail.
+ */
+export async function getAccountRepository(): Promise<IAccountRepository> {
+  const dataSource = getDataSource();
+
+  if (dataSource === 'mock') {
+    if (!mockAccountRepo) {
+      mockAccountRepo = new MockAccountRepository();
+    }
+    return mockAccountRepo;
+  }
+
+  const supabase = await createServerClient();
+  return new ApiAccountRepository(supabase);
 }
