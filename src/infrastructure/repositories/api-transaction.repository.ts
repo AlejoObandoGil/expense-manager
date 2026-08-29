@@ -125,6 +125,24 @@ export class ApiTransactionRepository implements ITransactionRepository {
     return (data as TransactionRow[]).map(toDomain);
   }
 
+  async findByAccount(accountId: string): Promise<Transaction[]> {
+    let data, error;
+    try {
+      ({ data, error } = await this.supabase
+        .from(TABLE)
+        .select('*')
+        .eq('account_id', accountId)
+        .order('date', { ascending: false }));
+    } catch {
+      throw new Error('No se pudieron obtener las transacciones por cuenta.');
+    }
+
+    if (error) {
+      throw new Error('No se pudieron obtener las transacciones por cuenta.');
+    }
+    return (data as TransactionRow[]).map(toDomain);
+  }
+
   async findByType(type: 'income' | 'expense'): Promise<Transaction[]> {
     let data, error;
     try {
