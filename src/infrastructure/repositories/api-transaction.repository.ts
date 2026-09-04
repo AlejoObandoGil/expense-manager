@@ -17,7 +17,7 @@ interface TransactionRow {
   amount: number;
   description: string;
   category_id: string;
-  account_id: string | null;
+  account_id: string;
   date: string;
   type: 'income' | 'expense';
   created_at: string;
@@ -30,7 +30,7 @@ function toDomain(row: TransactionRow): Transaction {
     amount: row.amount,
     description: row.description,
     categoryId: row.category_id,
-    accountId: row.account_id ?? undefined,
+    accountId: row.account_id,
     date: new Date(row.date),
     type: row.type,
     createdAt: new Date(row.created_at),
@@ -170,7 +170,7 @@ export class ApiTransactionRepository implements ITransactionRepository {
           amount: transaction.amount,
           description: transaction.description,
           category_id: transaction.categoryId,
-          account_id: transaction.accountId ?? null,
+          account_id: transaction.accountId,
           date: transaction.date.toISOString(),
           type: transaction.type,
         })

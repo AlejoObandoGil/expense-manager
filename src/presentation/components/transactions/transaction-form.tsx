@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Transaction } from '@/domain/entities/transaction';
 import { mockCategories } from '@/infrastructure/data';
 import { createTransaction, updateTransaction } from '@/app/transactions/actions';
+import { getActiveAccounts } from '@/app/accounts/actions';
 import {
   Dialog,
   DialogContent,
@@ -33,8 +34,38 @@ export function TransactionForm({ transaction, onSuccess, trigger }: Transaction
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState<'income' | 'expense'>(transaction?.type || 'expense');
+  const [defaultAccountId, setDefaultAccountId] = useState<string | null>(null);
+  const [accountsError, setAccountsError] = useState<string | null>(null);
 
   const isEditing = !!transaction;
+
+  // Story 5.2: transactions require a real account_id. There is no account
+  // selector yet (Story 5.4) -- the active user's first active account is
+  // used implicitly for new transactions. Not needed when editing: reassigning
+  // an account is out of scope (Story 5.4).
+  useEffect(() => {
+    if (isEditing) return;
+    let cancelled = false;
+
+    getActiveAccounts().then((result) => {
+      if (cancelled) return;
+      if (result.success) {
+        if (result.data.length > 0) {
+          setDefaultAccountId(result.data[0].id);
+        } else {
+          setAccountsError(
+            'No tienes cuentas activas. Crea una cuenta antes de registrar transacciones.'
+          );
+        }
+      } else {
+        setAccountsError(result.error);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isEditing]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -68,13 +99,23 @@ export function TransactionForm({ transaction, onSuccess, trigger }: Transaction
           return;
         }
       } else {
+        if (!defaultAccountId) {
+          toast.error('Error', {
+            description:
+              accountsError ??
+              'No se encontró una cuenta activa para asociar la transacción.',
+          });
+          setLoading(false);
+          return;
+        }
+
         const result = await createTransaction({
           amount,
           description,
           categoryId,
           date: new Date(date),
           type,
-          accountId: 'acc-1',
+          accountId: defaultAccountId,
         });
         if (result.success) {
           toast.success('Transacción creada', {
