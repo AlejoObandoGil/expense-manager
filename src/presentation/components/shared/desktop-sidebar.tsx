@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Home, List, Tags, PieChart, LogOut } from 'lucide-react';
+import { Home, List, Tags, PieChart, LogOut, Wallet } from 'lucide-react';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home, emoji: '💰' },
+  { href: '/accounts', label: 'Cuentas', icon: Wallet, emoji: '🏦' },
   { href: '/transactions', label: 'Transacciones', icon: List, emoji: '📝' },
   { href: '/categories', label: 'Categorías', icon: Tags, emoji: '🏷️' },
   { href: '/reports', label: 'Reportes', icon: PieChart, emoji: '📊' },

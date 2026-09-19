@@ -24,6 +24,10 @@ export class MockTransactionRepository implements ITransactionRepository {
     return this.transactions.filter(t => t.categoryId === categoryId);
   }
 
+  async findByAccount(accountId: string): Promise<Transaction[]> {
+    return this.transactions.filter(t => t.accountId === accountId);
+  }
+
   async findByType(type: 'income' | 'expense'): Promise<Transaction[]> {
     return this.transactions.filter(t => t.type === type);
   }

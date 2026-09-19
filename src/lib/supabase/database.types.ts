@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          created_at: string
+          currency: string
+          id: string
+          initial_balance: number
+          is_active: boolean
+          name: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          id?: string
+          initial_balance?: number
+          is_active?: boolean
+          name: string
+          type: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: string
+          initial_balance?: number
+          is_active?: boolean
+          name?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       budgets: {
         Row: {
           amount: number
@@ -81,7 +117,7 @@ export type Database = {
       }
       transactions: {
         Row: {
-          account_id: string | null
+          account_id: string
           amount: number
           category_id: string
           created_at: string
@@ -93,7 +129,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          account_id?: string | null
+          account_id: string
           amount: number
           category_id: string
           created_at?: string
@@ -105,7 +141,7 @@ export type Database = {
           user_id?: string
         }
         Update: {
-          account_id?: string | null
+          account_id?: string
           amount?: number
           category_id?: string
           created_at?: string
@@ -122,6 +158,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_account_id_fk"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
         ]

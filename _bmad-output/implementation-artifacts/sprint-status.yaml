@@ -1,0 +1,71 @@
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first story starts (via build's sprint sync)
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates the next story after the previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; the status view surfaces open ones
+generated: 08-18-2026 00:00
+last_updated: 09-03-2026 00:05
+project: expense-manager-1.0
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+development_status:
+  epic-1: done
+  1-1-fix-transactionrepository-type-naming-critical-blocker: done
+  1-2-implement-server-only-boundary-with-package-server-only: done
+  1-3-create-factory-pattern-with-async-resolution: done
+  1-4-consolidate-utilities-remove-duplicate-design-system: done
+  epic-1-retrospective: optional
+
+  epic-2: done
+  2-1-add-zod-validation-to-transaction-server-actions: done
+  2-2-add-zod-validation-to-category-budget-server-actions: done
+  epic-2-retrospective: optional
+
+  epic-3: done
+  3-1-create-getbudgetstatususecase-and-ibudgetrepository: done
+  3-2-replace-inline-budget-calculations-in-components: done
+  epic-3-retrospective: optional
+
+  epic-4: done
+  4-1-auth-foundation-and-server-side-session: done
+  4-2-persist-transactions-via-supabase-with-rls: done
+  4-3-persist-categories-via-supabase-with-rls: done
+  4-4-persist-budgets-via-supabase-with-rls: done
+  4-5-minimal-login-and-signup-ui: done
+  epic-4-retrospective: optional
+
+
+  epic-5: in-progress
+  5-1-create-account-table-rls-migrations: done
+  5-2-add-account-id-to-transactions: in-progress
+  5-3-implement-account-crud: done
+  5-4-account-selector-en-transaction-form: backlog
+  5-5-dashboard-balance-por-cuenta: backlog
+  5-6-accounts-management-page: in-progress
+  epic-5-retrospective: optional
