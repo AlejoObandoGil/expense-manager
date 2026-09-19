@@ -1,7 +1,8 @@
 import 'server-only';
-import { IAccountRepository } from '@/domain/repositories/account.repository';
+import { AccountHasTransactionsError, IAccountRepository } from '@/domain/repositories/account.repository';
 import { Account } from '@/domain/entities/account';
 import { mockAccounts } from '@/infrastructure/data/accounts';
+import { mockTransactions } from '@/infrastructure/data/transactions';
 
 export class MockAccountRepository implements IAccountRepository {
   private accounts: Account[] = [...mockAccounts];
@@ -41,6 +42,9 @@ export class MockAccountRepository implements IAccountRepository {
   async delete(id: string): Promise<void> {
     const index = this.accounts.findIndex(a => a.id === id);
     if (index === -1) throw new Error('Account not found');
+    if (mockTransactions.some(t => t.accountId === id)) {
+      throw new AccountHasTransactionsError();
+    }
     this.accounts.splice(index, 1);
   }
 }

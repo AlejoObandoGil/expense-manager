@@ -1,14 +1,19 @@
 'use server';
 
 import { z } from 'zod';
-import { getAccountRepository, getTransactionRepository } from '@/infrastructure/repositories';
+import { getAccountRepository } from '@/infrastructure/repositories';
 import { Account } from '@/domain/entities/account';
+import { AccountHasTransactionsError } from '@/domain/repositories/account.repository';
 import { ActionResult } from '@/lib/types';
 
 const createAccountSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   type: z.enum(['credit_card', 'checking', 'savings', 'cash', 'investment']),
-  initialBalance: z.number().finite('El saldo inicial debe ser un número válido').default(0),
+  initialBalance: z
+    .number()
+    .finite('El saldo inicial debe ser un número válido')
+    .nonnegative('El saldo inicial no puede ser negativo')
+    .default(0),
   currency: z.string().min(1, 'La moneda es requerida'),
 });
 
@@ -16,7 +21,7 @@ const updateAccountSchema = z.object({
   id: z.string().min(1, 'El ID es requerido'),
   name: z.string().min(1).optional(),
   type: z.enum(['credit_card', 'checking', 'savings', 'cash', 'investment']).optional(),
-  initialBalance: z.number().finite().optional(),
+  initialBalance: z.number().finite().nonnegative('El saldo inicial no puede ser negativo').optional(),
   currency: z.string().min(1).optional(),
   isActive: z.boolean().optional(),
 });
@@ -93,17 +98,15 @@ export async function deleteAccount(id: string): Promise<ActionResult<void>> {
       return { success: false, error: 'ID de cuenta inválido' };
     }
 
-    const transactionRepository = await getTransactionRepository();
-    const associatedTransactions = await transactionRepository.findByAccount(id);
-
-    if (associatedTransactions.length > 0) {
-      const accountRepository = await getAccountRepository();
-      await accountRepository.update(id, { isActive: false });
-      return { success: true, data: undefined };
-    }
-
     const accountRepository = await getAccountRepository();
-    await accountRepository.delete(id);
+    try {
+      await accountRepository.delete(id);
+    } catch (error) {
+      if (!(error instanceof AccountHasTransactionsError)) {
+        throw error;
+      }
+      await accountRepository.update(id, { isActive: false });
+    }
     return { success: true, data: undefined };
   } catch (error) {
     if (error instanceof Error) {

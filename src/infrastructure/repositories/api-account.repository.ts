@@ -1,6 +1,6 @@
 import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { IAccountRepository } from '@/domain/repositories/account.repository';
+import { AccountHasTransactionsError, IAccountRepository } from '@/domain/repositories/account.repository';
 import { Account } from '@/domain/entities/account';
 
 const TABLE = 'accounts';
@@ -148,6 +148,9 @@ export class ApiAccountRepository implements IAccountRepository {
     }
 
     if (error) {
+      if (error.code === '23503') {
+        throw new AccountHasTransactionsError();
+      }
       throw new Error('No se pudo eliminar la cuenta.');
     }
     if (!data || data.length === 0) {

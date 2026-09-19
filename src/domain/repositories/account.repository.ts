@@ -1,5 +1,12 @@
 import { Account } from '@/domain/entities/account';
 
+export class AccountHasTransactionsError extends Error {
+  constructor() {
+    super('La cuenta tiene transacciones asociadas.');
+    this.name = 'AccountHasTransactionsError';
+  }
+}
+
 export interface IAccountRepository {
   findAll(): Promise<Account[]>;
   findById(id: string): Promise<Account | null>;
